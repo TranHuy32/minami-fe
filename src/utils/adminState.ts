@@ -33,7 +33,7 @@ export interface Article {
   rawImage?: string;
 }
 
-const DEFAULT_PRODUCTS: Product[] = [
+export const DEFAULT_PRODUCTS: Product[] = [
   {
     id: 'p1',
     code: 'VBA-X3145',
@@ -410,7 +410,7 @@ const DEFAULT_PRODUCTS: Product[] = [
   }
 ];
 
-const DEFAULT_CATEGORIES: Category[] = [
+export const DEFAULT_CATEGORIES: Category[] = [
   {
     id: 'cat_smc',
     name: 'SMC',
@@ -459,7 +459,7 @@ const DEFAULT_CATEGORIES: Category[] = [
   }
 ];
 
-const DEFAULT_ARTICLES: Article[] = [
+export const DEFAULT_ARTICLES: Article[] = [
   {
     id: 'a1',
     title: 'MINAMI tổ chức hội thảo giải pháp quản lý khí nén tiết kiệm năng lượng',
@@ -496,13 +496,13 @@ export const setStoredState = <T>(key: string, value: T): void => {
   }
 };
 
-export const loadProducts = (): Product[] => getStoredState('minami_products', DEFAULT_PRODUCTS);
+export const loadProducts = (): Product[] => getStoredState('minami_products', []);
 export const saveProducts = (products: Product[]): void => setStoredState('minami_products', products);
 
-export const loadCategories = (): Category[] => getStoredState('minami_categories', DEFAULT_CATEGORIES);
+export const loadCategories = (): Category[] => getStoredState('minami_categories', []);
 export const saveCategories = (categories: Category[]): void => setStoredState('minami_categories', categories);
 
-export const loadArticles = (): Article[] => getStoredState('minami_articles', DEFAULT_ARTICLES);
+export const loadArticles = (): Article[] => getStoredState('minami_articles', []);
 export const saveArticles = (articles: Article[]): void => setStoredState('minami_articles', articles);
 
 export const formatPrice = (price: string | number | undefined | null): string => {

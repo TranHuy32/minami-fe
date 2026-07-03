@@ -50,23 +50,9 @@ function App() {
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
 
   // Load and manage localStorage states
-  const [products, setProducts] = useState<Product[]>(() => {
-    const loaded = loadProducts();
-    if (loaded.length < 10) {
-      localStorage.removeItem('minami_products');
-      return loadProducts();
-    }
-    return loaded;
-  });
-  const [categories, setCategories] = useState<Category[]>(() => {
-    const loaded = loadCategories();
-    if (loaded.length < 5) {
-      localStorage.removeItem('minami_categories');
-      return loadCategories();
-    }
-    return loaded;
-  });
-  const [articles, setArticles] = useState<Article[]>(loadArticles());
+  const [products, setProducts] = useState<Product[]>(() => loadProducts());
+  const [categories, setCategories] = useState<Category[]>(() => loadCategories());
+  const [articles, setArticles] = useState<Article[]>(() => loadArticles());
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
 
   const [isAdminMode, setIsAdminMode] = useState(false);
