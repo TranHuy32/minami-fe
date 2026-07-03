@@ -10,6 +10,7 @@ import {
 } from './icons';
 import type { Product as ProductItem } from '../utils/adminState';
 import { formatPrice } from '../utils/adminState';
+import { API_BASE_URL } from '../config';
 
 interface ProductTableProps {
   products: ProductItem[];
@@ -27,7 +28,7 @@ interface ProductTableProps {
 
 const isLocalBackendImage = (url: string | undefined | null) => {
   if (!url) return false;
-  return url.includes('localhost:3000') || url.startsWith('/api/v1') || url.startsWith('/uploads') || url.startsWith('uploads');
+  return url.startsWith(API_BASE_URL) || url.includes('localhost:3000') || url.startsWith('/api/v1') || url.startsWith('/uploads') || url.startsWith('uploads');
 };
 
 export const ProductTable: React.FC<ProductTableProps> = ({

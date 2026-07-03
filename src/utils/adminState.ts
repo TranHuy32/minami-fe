@@ -517,7 +517,7 @@ export const formatPrice = (price: string | number | undefined | null): string =
 
 const isLocalBackendImage = (url: string | undefined | null) => {
   if (!url) return false;
-  return url.includes('localhost:3000') || url.startsWith('/api/v1') || url.startsWith('/uploads') || url.startsWith('uploads');
+  return url.startsWith(API_BASE_URL) || url.includes('localhost:3000') || url.startsWith('/api/v1') || url.startsWith('/uploads') || url.startsWith('uploads');
 };
 
 export const formatArticleContent = (content: string): string => {
@@ -536,12 +536,15 @@ export const formatArticleContent = (content: string): string => {
     if (finalUrl.startsWith('/images/') || finalUrl.startsWith('images/')) {
       // local assets
     } else {
-      if (finalUrl.includes(`${API_BASE_URL}/uploads`)) {
-        finalUrl = finalUrl.replace(`${API_BASE_URL}/uploads`, `${API_BASE_URL}/api/v1/uploads`);
-      } else if (finalUrl.startsWith('/uploads')) {
-        finalUrl = `/api/v1${finalUrl}`;
-      } else if (finalUrl.startsWith('uploads')) {
-        finalUrl = `/api/v1/${finalUrl}`;
+      const uploadPath = (() => {
+        try {
+          return new URL(finalUrl).pathname.match(/^\/(?:api\/v1\/)?uploads\/.+/)?.[0];
+        } catch {
+          return finalUrl.match(/^\/?(?:api\/v1\/)?uploads\/.+/)?.[0];
+        }
+      })();
+      if (uploadPath) {
+        finalUrl = `${API_BASE_URL}/${uploadPath.replace(/^\/?(?:api\/v1\/)?/, 'api/v1/')}`;
       }
       if (finalUrl && !finalUrl.startsWith('http://') && !finalUrl.startsWith('https://') && !finalUrl.startsWith('data:')) {
         finalUrl = `${API_BASE_URL}${finalUrl.startsWith('/') ? '' : '/'}${finalUrl}`;

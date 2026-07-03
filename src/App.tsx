@@ -21,7 +21,7 @@ import './App.css';
 
 const isLocalBackendImage = (url: string | undefined | null) => {
   if (!url) return false;
-  return url.includes('localhost:3000') || url.startsWith('/api/v1') || url.startsWith('/uploads') || url.startsWith('uploads');
+  return url.startsWith(API_BASE_URL) || url.includes('localhost:3000') || url.startsWith('/api/v1') || url.startsWith('/uploads') || url.startsWith('uploads');
 };
 
 const getFullImageUrl = (url: string) => {
@@ -30,12 +30,15 @@ const getFullImageUrl = (url: string) => {
     return url;
   }
   let targetUrl = url;
-  if (targetUrl.includes(`${API_BASE_URL}/uploads`)) {
-    targetUrl = targetUrl.replace(`${API_BASE_URL}/uploads`, `${API_BASE_URL}/api/v1/uploads`);
-  } else if (targetUrl.startsWith('/uploads')) {
-    targetUrl = `/api/v1${targetUrl}`;
-  } else if (targetUrl.startsWith('uploads')) {
-    targetUrl = `/api/v1/${targetUrl}`;
+  const uploadPath = (() => {
+    try {
+      return new URL(targetUrl).pathname.match(/^\/(?:api\/v1\/)?uploads\/.+/)?.[0];
+    } catch {
+      return targetUrl.match(/^\/?(?:api\/v1\/)?uploads\/.+/)?.[0];
+    }
+  })();
+  if (uploadPath) {
+    return `${API_BASE_URL}/${uploadPath.replace(/^\/?(?:api\/v1\/)?/, 'api/v1/')}`;
   }
   if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://') || targetUrl.startsWith('data:')) {
     return targetUrl;
