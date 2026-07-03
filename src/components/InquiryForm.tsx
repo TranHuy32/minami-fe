@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, CheckCircle, AlertTriangle } from './icons';
+import { API_BASE_URL } from '../config';
 
 interface FormData {
   fullName: string;
@@ -30,7 +31,8 @@ export const InquiryForm: React.FC = () => {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isDisabled] = useState(false);
 
   const validateField = (name: string, value: string): string => {
     switch (name) {
@@ -39,12 +41,18 @@ export const InquiryForm: React.FC = () => {
         if (value.trim().length < 3) return 'Họ và tên phải có ít nhất 3 ký tự';
         return '';
       case 'email':
-        if (!value.trim()) return 'Email liên hệ là bắt buộc';
+        if (!value.trim()) {
+          if (!formData.phone.trim()) return 'Vui lòng nhập Email hoặc Số điện thoại';
+          return '';
+        }
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) return 'Định dạng email không hợp lệ';
         return '';
       case 'phone':
-        if (!value.trim()) return 'Số điện thoại là bắt buộc';
+        if (!value.trim()) {
+          if (!formData.email.trim()) return 'Vui lòng nhập Email hoặc Số điện thoại';
+          return '';
+        }
         const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/;
         if (!phoneRegex.test(value)) return 'Số điện thoại Việt Nam không hợp lệ';
         return '';
@@ -58,19 +66,89 @@ export const InquiryForm: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
+    const nextFormData = { ...formData, [name]: value };
+    setFormData(nextFormData);
+
     if (touched[name]) {
-      const fieldError = validateField(name, value);
-      setErrors(prev => ({ ...prev, [name]: fieldError }));
+      let fieldError = '';
+      if (name === 'fullName') {
+        if (!value.trim()) fieldError = 'Họ và tên là bắt buộc';
+        else if (value.trim().length < 3) fieldError = 'Họ và tên phải có ít nhất 3 ký tự';
+      } else if (name === 'message') {
+        if (!value.trim()) fieldError = 'Nội dung tin nhắn yêu cầu là bắt buộc';
+      } else if (name === 'email') {
+        if (!value.trim()) {
+          if (!nextFormData.phone.trim()) fieldError = 'Vui lòng nhập Email hoặc Số điện thoại';
+        } else {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(value)) fieldError = 'Định dạng email không hợp lệ';
+        }
+      } else if (name === 'phone') {
+        if (!value.trim()) {
+          if (!nextFormData.email.trim()) fieldError = 'Vui lòng nhập Email hoặc Số điện thoại';
+        } else {
+          const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/;
+          if (!phoneRegex.test(value)) fieldError = 'Số điện thoại Việt Nam không hợp lệ';
+        }
+      }
+
+      setErrors(prev => {
+        const nextErrors = { ...prev, [name]: fieldError };
+        if (name === 'email' && value.trim()) {
+          if (nextErrors.phone === 'Vui lòng nhập Email hoặc Số điện thoại') {
+            nextErrors.phone = '';
+          }
+        }
+        if (name === 'phone' && value.trim()) {
+          if (nextErrors.email === 'Vui lòng nhập Email hoặc Số điện thoại') {
+            nextErrors.email = '';
+          }
+        }
+        return nextErrors;
+      });
     }
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setTouched(prev => ({ ...prev, [name]: true }));
-    const fieldError = validateField(name, value);
-    setErrors(prev => ({ ...prev, [name]: fieldError }));
+    
+    let fieldError = '';
+    if (name === 'fullName') {
+      if (!value.trim()) fieldError = 'Họ và tên là bắt buộc';
+      else if (value.trim().length < 3) fieldError = 'Họ và tên phải có ít nhất 3 ký tự';
+    } else if (name === 'message') {
+      if (!value.trim()) fieldError = 'Nội dung tin nhắn yêu cầu là bắt buộc';
+    } else if (name === 'email') {
+      if (!value.trim()) {
+        if (!formData.phone.trim()) fieldError = 'Vui lòng nhập Email hoặc Số điện thoại';
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) fieldError = 'Định dạng email không hợp lệ';
+      }
+    } else if (name === 'phone') {
+      if (!value.trim()) {
+        if (!formData.email.trim()) fieldError = 'Vui lòng nhập Email hoặc Số điện thoại';
+      } else {
+        const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/;
+        if (!phoneRegex.test(value)) fieldError = 'Số điện thoại Việt Nam không hợp lệ';
+      }
+    }
+
+    setErrors(prev => {
+      const nextErrors = { ...prev, [name]: fieldError };
+      if (name === 'email' && value.trim()) {
+        if (nextErrors.phone === 'Vui lòng nhập Email hoặc Số điện thoại') {
+          nextErrors.phone = '';
+        }
+      }
+      if (name === 'phone' && value.trim()) {
+        if (nextErrors.email === 'Vui lòng nhập Email hoặc Số điện thoại') {
+          nextErrors.email = '';
+        }
+      }
+      return nextErrors;
+    });
   };
 
   const getValidationState = (name: keyof FormData) => {
@@ -82,7 +160,7 @@ export const InquiryForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate all fields
     const newErrors: FormErrors = {};
     Object.keys(formData).forEach(key => {
@@ -104,22 +182,48 @@ export const InquiryForm: React.FC = () => {
     if (Object.keys(newErrors).length > 0) return;
 
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitSuccess(true);
-      setFormData({
-        fullName: '',
-        email: '',
-        phone: '',
-        company: '',
-        message: '',
+    setSubmitError(null);
+
+    fetch(`${API_BASE_URL}/api/v1/telegram/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        full_name: formData.fullName,
+        email: formData.email.trim() || undefined,
+        phone: formData.phone.trim() || undefined,
+        company: formData.company.trim() || undefined,
+        message: formData.message
+      })
+    })
+      .then(async (res) => {
+        setIsSubmitting(false);
+        if (res.ok) {
+          setSubmitSuccess(true);
+          setFormData({
+            fullName: '',
+            email: '',
+            phone: '',
+            company: '',
+            message: '',
+          });
+          setTouched({});
+          setTimeout(() => setSubmitSuccess(false), 5000);
+        } else {
+          let errorMsg = 'Gửi yêu cầu thất bại. Vui lòng thử lại sau.';
+          try {
+            const data = await res.json();
+            if (data.message) errorMsg = data.message;
+          } catch (e) {}
+          setSubmitError(errorMsg);
+        }
+      })
+      .catch(err => {
+        setIsSubmitting(false);
+        console.error('Error submitting inquiry:', err);
+        setSubmitError('Lỗi kết nối tới máy chủ. Vui lòng kiểm tra lại mạng của bạn.');
       });
-      setTouched({});
-      
-      // Auto clear success notice
-      setTimeout(() => setSubmitSuccess(false), 5000);
-    }, 1500);
   };
 
   return (
@@ -132,16 +236,22 @@ export const InquiryForm: React.FC = () => {
         </div>
       </div>
 
-      <div className="demo-control-bar">
-        <label className="checkbox-label">
-          <input 
-            type="checkbox" 
-            checked={isDisabled} 
-            onChange={(e) => setIsDisabled(e.target.checked)} 
-          />
-          Vô hiệu hóa form (Test Disabled State)
-        </label>
-      </div>
+      {submitError && (
+        <div className="submit-error-alert" style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '12px 16px',
+          backgroundColor: '#fee2e2',
+          border: '1px solid #fca5a5',
+          borderRadius: '8px',
+          color: '#b91c1c',
+          fontSize: '14px',
+          marginBottom: '20px'
+        }}>
+          <span>⚠️ {submitError}</span>
+        </div>
+      )}
 
       {submitSuccess && (
         <div className="submit-success-alert">
@@ -213,7 +323,7 @@ export const InquiryForm: React.FC = () => {
               onChange={handleChange}
               onBlur={handleBlur}
               disabled={isDisabled || isSubmitting}
-              placeholder="0968 045 604"
+              placeholder=""
               className={`form-input state-${getValidationState('phone')}`}
             />
             {getValidationState('phone') === 'error' && (

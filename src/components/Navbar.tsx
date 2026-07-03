@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { 
-  Search, 
-  Phone, 
-  Mail, 
-  Menu, 
-  X, 
-  Globe 
+import {
+  Search,
+  Phone,
+  Mail,
+  Menu,
+  X,
+  Globe
 } from './icons';
 
 interface NavbarProps {
@@ -16,15 +16,14 @@ interface NavbarProps {
   onToggleAdmin: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ 
-  onSearch, 
-  activeTab, 
+export const Navbar: React.FC<NavbarProps> = ({
+  onSearch,
+  activeTab,
   setActiveTab,
   isAdminActive,
   onToggleAdmin
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [lang, setLang] = useState<'VI' | 'EN'>('VI');
   const [searchValue, setSearchValue] = useState('');
 
   const menuItems = [
@@ -32,9 +31,12 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'intro', label: 'Giới thiệu' },
     { id: 'products', label: 'Sản phẩm' },
     { id: 'news', label: 'Tin tức' },
-    { id: 'recruitment', label: 'Tuyển dụng' },
     { id: 'contact', label: 'Liên hệ' },
   ];
+
+  const activeMenuItems = isAdminActive
+    ? menuItems.filter(item => item.id !== 'home')
+    : menuItems;
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,28 +55,28 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="top-bar-container">
           <div className="top-bar-contacts">
             <a href="tel:02462533810" className="top-bar-link">
-              <Phone size={14} /> <span>Liên hệ: 024 6253 3810</span>
+              <Phone size={14} /> <span>Liên hệ:</span>
             </a>
             <span className="separator">|</span>
-            <a href="tel:0968045604" className="top-bar-link">
-              <Phone size={14} /> <span>Hotline: 0968 045 604</span>
+            <a href="tel:" className="top-bar-link">
+              <Phone size={14} /> <span>Hotline:</span>
             </a>
             <span className="separator">|</span>
-            <a href="mailto:sales@minami.com.vn" className="top-bar-link">
-              <Mail size={14} /> <span>Email: sales@minami.com.vn</span>
+            <a href="mailto:Minamiautomation@gmail.com" className="top-bar-link">
+              <Mail size={14} /> <span>Email: Minamiautomation@gmail.com</span>
             </a>
           </div>
 
           <div className="top-bar-right" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <button className="lang-toggle" onClick={() => setLang(lang === 'VI' ? 'EN' : 'VI')}>
-              <Globe size={14} /> <span>{lang === 'VI' ? 'Tiếng Việt' : 'English'}</span>
-            </button>
-            <button 
-              className="lang-toggle" 
+            <div className="lang-toggle" style={{ cursor: 'default', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <Globe size={14} /> <span>Tiếng Việt</span>
+            </div>
+            <button
+              className="lang-toggle"
               onClick={onToggleAdmin}
-              style={{ 
-                backgroundColor: 'rgba(255,255,255,0.15)', 
-                padding: '2px 8px', 
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.15)',
+                padding: '2px 8px',
                 borderRadius: '4px',
                 fontWeight: 600
               }}
@@ -89,50 +91,56 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="main-nav-container">
         <div className="main-nav-content">
           <div className="logo-section" onClick={() => selectTab('home')}>
-            <img 
-              src="/images/logo_horizontal.png" 
-              alt="MINAMI Logo" 
+            <img
+              src="/images/2.png"
+              alt="MINAMI Logo"
               className="logo-img"
             />
           </div>
 
-          <nav className="desktop-menu">
-            <ul className="menu-list">
-              {menuItems.map(item => (
-                <li key={item.id} className="menu-item">
-                  <button 
-                    className={`menu-link ${activeTab === item.id ? 'active' : ''}`}
-                    onClick={() => selectTab(item.id)}
-                  >
-                    {item.label}
+          {!isAdminActive && (
+            <>
+              <nav className="desktop-menu">
+                <ul className="menu-list">
+                  {activeMenuItems.map(item => (
+                    <li key={item.id} className="menu-item">
+                      <button
+                        className={`menu-link ${activeTab === item.id ? 'active' : ''}`}
+                        onClick={() => selectTab(item.id)}
+                      >
+                        {item.label}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+
+              <div className="search-section">
+                <form onSubmit={handleSearchSubmit} className="nav-search-form">
+                  <input
+                    type="text"
+                    placeholder="Tìm kiếm..."
+                    value={searchValue}
+                    onChange={(e) => setSearchValue(e.target.value)}
+                    className="nav-search-input"
+                  />
+                  <button type="submit" className="nav-search-btn" aria-label="Submit search">
+                    <Search size={18} />
                   </button>
-                </li>
-              ))}
-            </ul>
-          </nav>
+                </form>
+              </div>
+            </>
+          )}
 
-          <div className="search-section">
-            <form onSubmit={handleSearchSubmit} className="nav-search-form">
-              <input 
-                type="text" 
-                placeholder="Tìm kiếm..."
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                className="nav-search-input"
-              />
-              <button type="submit" className="nav-search-btn" aria-label="Submit search">
-                <Search size={18} />
-              </button>
-            </form>
-          </div>
-
-          <button 
-            className="mobile-menu-toggle" 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-          >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {!isAdminActive && (
+            <button
+              className="mobile-menu-toggle"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          )}
         </div>
       </div>
 
@@ -140,9 +148,9 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className={`mobile-drawer-overlay ${mobileMenuOpen ? 'open' : ''}`} onClick={() => setMobileMenuOpen(false)}>
         <div className={`mobile-drawer ${mobileMenuOpen ? 'open' : ''}`} onClick={(e) => e.stopPropagation()}>
           <div className="drawer-header">
-            <img 
-              src="/images/logo_horizontal.png" 
-              alt="MINAMI Logo" 
+            <img
+              src="/images/2.png"
+              alt="MINAMI Logo"
               className="logo-img-mobile"
             />
             <button className="drawer-close" onClick={() => setMobileMenuOpen(false)}>
@@ -152,8 +160,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <div className="drawer-body">
             <form onSubmit={handleSearchSubmit} className="mobile-search-form">
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Tìm kiếm..."
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
@@ -165,9 +173,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             </form>
 
             <ul className="mobile-menu-list">
-              {menuItems.map(item => (
+              {activeMenuItems.map(item => (
                 <li key={item.id} className="mobile-menu-item">
-                  <button 
+                  <button
                     className={`mobile-menu-link ${activeTab === item.id ? 'active' : ''}`}
                     onClick={() => selectTab(item.id)}
                   >
@@ -178,8 +186,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             </ul>
 
             <div className="mobile-drawer-contacts">
-              <p><Phone size={14} /> 0968 045 604</p>
-              <p><Mail size={14} /> sales@minami.com.vn</p>
+              <p><Phone size={14} /> </p>
+              <p><Mail size={14} /> Minamiautomation@gmail.com</p>
             </div>
           </div>
         </div>
@@ -262,16 +270,21 @@ export const Navbar: React.FC<NavbarProps> = ({
           display: flex;
           align-items: center;
           justify-content: space-between;
-          height: 70px;
+          height: 80px;
         }
 
         .logo-section {
           cursor: pointer;
+          display: flex;
+          align-items: center;
+          height: 100%;
         }
 
         .logo-img {
-          height: 48px;
-          width: auto;
+          height: 70px !important;
+          width: auto !important;
+          max-height: 100% !important;
+          object-fit: contain;
         }
 
         .desktop-menu {
@@ -412,7 +425,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         }
 
         .logo-img-mobile {
-          height: 36px;
+          height: 72px;
         }
 
         .drawer-close {

@@ -15,7 +15,7 @@ const SLIDES: Slide[] = [
     id: 1,
     title: 'Advanced Industrial Automation',
     subtitle: 'Smart Robotics • Precision Pneumatics • Connected Sensors for the Smart Factory.',
-    tag: 'AECOM AUTOTECH',
+    tag: 'MINAMI AUTOTECH',
     image: '/images/banner1.png',
   },
   {
@@ -23,18 +23,23 @@ const SLIDES: Slide[] = [
     title: 'SMC Pneumatic Solutions',
     subtitle: 'Authorized distributor of SMC Japan in Vietnam. Premium valves, actuators, and air preparation.',
     tag: 'SMC VIETNAM PARTNER',
-    bgColor: 'linear-gradient(135deg, #0A3B7C 0%, #1656A8 100%)',
+    image: '/images/banner3.png',
   },
   {
     id: 3,
     title: 'Precision Temperature Control',
     subtitle: 'Omron Temperature Controllers and PLC Systems. Maximize efficiency, minimize down-time.',
     tag: 'OMRON GOLD DISTRIBUTOR',
-    bgColor: 'linear-gradient(135deg, #06234D 0%, #E37222 100%)',
+    image: '/images/banner4.png',
   }
 ];
 
-export const Slider: React.FC = () => {
+interface SliderProps {
+  onContactClick?: () => void;
+  onProductsClick?: () => void;
+}
+
+export const Slider: React.FC<SliderProps> = ({ onContactClick, onProductsClick }) => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<any | null>(null);
@@ -57,33 +62,45 @@ export const Slider: React.FC = () => {
   }, [isPaused]);
 
   return (
-    <div 
+    <div
       className="hero-slider"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      <div 
-        className="slides-wrapper" 
+      <div
+        className="slides-wrapper"
         style={{ transform: `translateX(-${activeSlide * 100}%)` }}
       >
         {SLIDES.map(slide => (
-          <div 
-            key={slide.id} 
+          <div
+            key={slide.id}
             className="slide-item"
-            style={{ 
-              background: slide.image ? `url(${slide.image}) center/cover no-repeat` : slide.bgColor 
+            style={{
+              background: slide.image ? `url(${slide.image}) center/cover no-repeat` : slide.bgColor
             }}
           >
             {/* Dark tint overlay for better text contrast */}
             <div className="slide-overlay" />
-            
+
             <div className="slide-content">
               <span className="slide-tag">{slide.tag}</span>
               <h1 className="slide-title">{slide.title}</h1>
               <p className="slide-subtitle">{slide.subtitle}</p>
               <div className="slide-actions">
-                <a href="#products-table" className="btn btn-secondary">Xem Sản Phẩm</a>
-                <a href="#contact-form" className="btn btn-outline slide-btn-outline">Liên Hệ Tư Vấn</a>
+                <button
+                  onClick={onProductsClick}
+                  className="btn btn-secondary"
+                  style={{ border: 'none', cursor: 'pointer' }}
+                >
+                  Xem Sản Phẩm
+                </button>
+                <button
+                  onClick={onContactClick}
+                  className="btn btn-outline slide-btn-outline"
+                  style={{ cursor: 'pointer' }}
+                >
+                  Liên Hệ Tư Vấn
+                </button>
               </div>
             </div>
           </div>
@@ -101,7 +118,7 @@ export const Slider: React.FC = () => {
       {/* Slide indicators (dots) */}
       <div className="slider-indicators">
         {SLIDES.map((_, index) => (
-          <button 
+          <button
             key={index}
             className={`indicator-dot ${index === activeSlide ? 'active' : ''}`}
             onClick={() => setActiveSlide(index)}
@@ -165,6 +182,13 @@ export const Slider: React.FC = () => {
           align-items: flex-start;
           gap: var(--space-3);
           animation: slideUpContent 500ms ease-out forwards;
+          margin-left: 20px;
+        }
+
+        @media (min-width: 768px) {
+          .slide-content {
+            margin-left: 60px;
+          }
         }
 
         .slide-tag {

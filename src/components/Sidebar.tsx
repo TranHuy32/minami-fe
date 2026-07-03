@@ -14,6 +14,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSelectCategory, selectedCate
     'Cảm biến': false,
   });
 
+  const handleRowClick = (cat: Category) => {
+    const hasSubs = !!cat.children && cat.children.length > 0;
+    if (hasSubs) {
+      const isExpanded = !!expandedCats[cat.name];
+      if (!isExpanded) {
+        setExpandedCats(prev => ({ ...prev, [cat.name]: true }));
+      } else {
+        onSelectCategory(cat.name);
+      }
+    } else {
+      onSelectCategory(cat.name);
+    }
+  };
+
   const toggleExpand = (catName: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setExpandedCats(prev => ({
@@ -27,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSelectCategory, selectedCate
       <h2 className="sidebar-title">Danh Mục Sản Phẩm</h2>
       <ul className="category-list">
         {categories.map(cat => {
-          const hasSubs = !!cat.subcategories && cat.subcategories.length > 0;
+          const hasSubs = !!cat.children && cat.children.length > 0;
           const isExpanded = !!expandedCats[cat.name];
           const isSelected = selectedCategory === cat.name;
 
@@ -35,7 +49,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSelectCategory, selectedCate
             <li key={cat.name} className="category-item-container">
               <div 
                 className={`category-item-row ${isSelected ? 'active' : ''}`}
-                onClick={() => onSelectCategory(cat.name)}
+                onClick={() => handleRowClick(cat)}
               >
                 <span className="category-name">{cat.name}</span>
                 {hasSubs && (
@@ -52,16 +66,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSelectCategory, selectedCate
               {/* Subcategories list with slideDown animation */}
               {hasSubs && (
                 <ul className={`subcategory-list ${isExpanded ? 'open' : ''}`}>
-                  {cat.subcategories!.map(sub => {
-                    const isSubSelected = selectedCategory === sub;
+                  {cat.children!.map(sub => {
+                    const isSubSelected = selectedCategory === sub.name;
                     return (
-                      <li key={sub} className="subcategory-item-container">
+                      <li key={sub.id} className="subcategory-item-container">
                         <button
                           className={`subcategory-link ${isSubSelected ? 'active' : ''}`}
-                          onClick={() => onSelectCategory(sub)}
+                          onClick={() => onSelectCategory(sub.name)}
                         >
                           <ChevronRight size={12} className="bullet-icon" />
-                          <span>{sub}</span>
+                          <span>{sub.name}</span>
                         </button>
                       </li>
                     );

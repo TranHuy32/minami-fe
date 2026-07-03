@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, AlertTriangle, CheckCircle } from './icons';
+import { API_BASE_URL } from '../config';
 
 interface AdminLoginProps {
   onLoginSuccess: () => void;
@@ -43,18 +44,36 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onCancel
 
     setIsSubmitting(true);
 
-    // Simulate login verification
-    setTimeout(() => {
-      setIsSubmitting(false);
-      if (username === 'admin' && password === 'admin123') {
-        setLoginSuccess(true);
-        setTimeout(() => {
-          onLoginSuccess();
-        }, 800);
-      } else {
-        setLoginError('Tên đăng nhập hoặc mật khẩu quản trị không chính xác.');
-      }
-    }, 1200);
+    fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username,
+        password,
+      }),
+    })
+      .then(async (res) => {
+        const result = await res.json();
+        setIsSubmitting(false);
+        if (res.ok && result.status === 200) {
+          if (result.data?.accessToken) {
+            localStorage.setItem('accessToken', result.data.accessToken);
+          }
+          setLoginSuccess(true);
+          setTimeout(() => {
+            onLoginSuccess();
+          }, 800);
+        } else {
+          setLoginError(result.message || 'Tên đăng nhập hoặc mật khẩu quản trị không chính xác.');
+        }
+      })
+      .catch((err) => {
+        setIsSubmitting(false);
+        console.error('Login error:', err);
+        setLoginError('Không thể kết nối đến máy chủ.');
+      });
   };
 
   return (

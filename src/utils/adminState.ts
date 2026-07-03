@@ -1,3 +1,5 @@
+import { API_BASE_URL } from '../config';
+
 export interface Product {
   id: string;
   code: string;
@@ -8,11 +10,17 @@ export interface Product {
   status: 'In Stock' | 'Low Stock' | 'Out of Stock';
   image: string;
   specifications: string[];
+  created_at?: string;
+  is_featured?: boolean;
+  description?: string;
 }
 
 export interface Category {
+  id: string;
   name: string;
-  subcategories: string[];
+  slug?: string;
+  parent_id?: string | null;
+  children: Category[];
 }
 
 export interface Article {
@@ -21,6 +29,8 @@ export interface Article {
   date: string;
   summary: string;
   content: string;
+  image?: string;
+  rawImage?: string;
 }
 
 const DEFAULT_PRODUCTS: Product[] = [
@@ -402,32 +412,51 @@ const DEFAULT_PRODUCTS: Product[] = [
 
 const DEFAULT_CATEGORIES: Category[] = [
   {
+    id: 'cat_smc',
     name: 'SMC',
-    subcategories: [
-      'Van Khí Nén',
-      'Xy lanh khí',
-      'Xy lanh điện',
-      'Lọc - Điều áp khí nén',
-      'Cảm biến áp suất, lưu lượng',
-      'Máy sấy khí - Chiller',
-      'Hệ thống quản lý khí nén (AMS)',
-      'Ống dây - Đầu nối - Van tiết lưu',
-      'Van chân không'
+    children: [
+      { id: 'sub_vankhinen', name: 'Van Khí Nén', children: [] },
+      { id: 'sub_xylanhkhi', name: 'Xy lanh khí', children: [] },
+      { id: 'sub_xylanhdien', name: 'Xy lanh điện', children: [] },
+      { id: 'sub_locdieuap', name: 'Lọc - Điều áp khí nén', children: [] },
+      { id: 'sub_cambienapsuat', name: 'Cảm biến áp suất, lưu lượng', children: [] },
+      { id: 'sub_maysaykhi', name: 'Máy sấy khí - Chiller', children: [] },
+      { id: 'sub_ams', name: 'Hệ thống quản lý khí nén (AMS)', children: [] },
+      { id: 'sub_ongdaydaunoi', name: 'Ống dây - Đầu nối - Van tiết lưu', children: [] },
+      { id: 'sub_vanchankhong', name: 'Van chân không', children: [] }
     ]
   },
   {
+    id: 'cat_cambien',
     name: 'Cảm biến',
-    subcategories: [
-      'Cảm biến quang',
-      'Cảm biến tiệm cận',
-      'Encoder'
+    children: [
+      { id: 'sub_cambienquang', name: 'Cảm biến quang', children: [] },
+      { id: 'sub_cambientiemcan', name: 'Cảm biến tiệm cận', children: [] },
+      { id: 'sub_encoder', name: 'Encoder', children: [] }
     ]
   },
-  { name: 'Điều khiển nhiệt độ', subcategories: [] },
-  { name: 'PLC, BỘ ĐIỀU KHIỂN', subcategories: [] },
-  { name: 'Rơ le, thiết bị đóng cắt', subcategories: ['Rơ le thời gian', 'Rơ le trung gian', 'Công tác hành trình', 'Attomat, Khởi động từ', 'Nguồn một chiều'] },
-  { name: 'Biến tần, DC drives', subcategories: [] },
-  { name: 'Camera - Cảm biến hình ảnh', subcategories: ['HIKRobot', 'Omron Vision'] }
+  { id: 'cat_dieukhiennhietdo', name: 'Điều khiển nhiệt độ', children: [] },
+  { id: 'cat_plc', name: 'PLC, BỘ ĐIỀU KHIỂN', children: [] },
+  {
+    id: 'cat_role',
+    name: 'Rơ le, thiết bị đóng cắt',
+    children: [
+      { id: 'sub_roletheogian', name: 'Rơ le thời gian', children: [] },
+      { id: 'sub_roletrunggian', name: 'Rơ le trung gian', children: [] },
+      { id: 'sub_congtachanhtrinh', name: 'Công tác hành trình', children: [] },
+      { id: 'sub_attomat', name: 'Attomat, Khởi động từ', children: [] },
+      { id: 'sub_nguonmotchieu', name: 'Nguồn một chiều', children: [] }
+    ]
+  },
+  { id: 'cat_bientan', name: 'Biến tần, DC drives', children: [] },
+  {
+    id: 'cat_camera',
+    name: 'Camera - Cảm biến hình ảnh',
+    children: [
+      { id: 'sub_hikrobot', name: 'HIKRobot', children: [] },
+      { id: 'sub_omronvision', name: 'Omron Vision', children: [] }
+    ]
+  }
 ];
 
 const DEFAULT_ARTICLES: Article[] = [
@@ -436,14 +465,16 @@ const DEFAULT_ARTICLES: Article[] = [
     title: 'MINAMI tổ chức hội thảo giải pháp quản lý khí nén tiết kiệm năng lượng',
     date: '02/07/2026',
     summary: 'Hội thảo giới thiệu hệ thống AMS mới nhất của SMC giúp tối ưu hóa lượng khí tiêu thụ trong nhà máy...',
-    content: 'Tại hội thảo vừa diễn ra, các chuyên gia tự động hóa của MINAMI cùng đối tác SMC Nhật Bản đã giới thiệu chuỗi thiết bị đo và điều khiển khí nén thông minh AMS (Air Management System). Hệ thống này cho phép phát hiện rò rỉ khí nén tức thời và tự động giảm áp suất khi hệ thống ở trạng thái chờ, tiết kiệm đến 30% năng lượng tiêu thụ.'
+    content: 'Tại hội thảo vừa diễn ra, các chuyên gia tự động hóa của MINAMI cùng đối tác SMC Nhật Bản đã giới thiệu chuỗi thiết bị đo và điều khiển khí nén thông minh AMS (Air Management System). Hệ thống này cho phép phát hiện rò rỉ khí nén tức thời và tự động giảm áp suất khi hệ thống ở trạng thái chờ, tiết kiệm đến 30% năng lượng tiêu thụ.',
+    image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800'
   },
   {
     id: 'a2',
     title: 'Ứng dụng camera thông minh HIKRobot trong phát hiện lỗi đóng gói bao bì',
     date: '28/06/2026',
     summary: 'Giải pháp Machine Vision giúp loại bỏ 99.9% sản phẩm lỗi, tăng độ chính xác trong dây chuyền đóng gói...',
-    content: 'MINAMI vừa chuyển giao thành công giải pháp camera thông minh của HIKRobot phục vụ kiểm tra lỗi nhãn và đát in trên dây chuyền đóng gói bao bì ngành thực phẩm. Với tốc độ chụp 60 khung hình/giây và thuật toán AI, hệ thống phát hiện chính xác các lỗi mờ chữ, lệch nhãn, rách hộp và tự động loại bỏ khỏi băng chuyền.'
+    content: 'MINAMI vừa chuyển giao thành công giải pháp camera thông minh của HIKRobot phục vụ kiểm tra lỗi nhãn và đát in trên dây chuyền đóng gói bao bì ngành thực phẩm. Với tốc độ chụp 60 khung hình/giây và thuật toán AI, hệ thống phát hiện chính xác các lỗi mờ chữ, lệch nhãn, rách hộp và tự động loại bỏ khỏi băng chuyền.',
+    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800'
   }
 ];
 
@@ -465,11 +496,75 @@ export const setStoredState = <T>(key: string, value: T): void => {
   }
 };
 
-export const loadProducts = (): Product[] => getStoredState('aecom_products', DEFAULT_PRODUCTS);
-export const saveProducts = (products: Product[]): void => setStoredState('aecom_products', products);
+export const loadProducts = (): Product[] => getStoredState('minami_products', DEFAULT_PRODUCTS);
+export const saveProducts = (products: Product[]): void => setStoredState('minami_products', products);
 
-export const loadCategories = (): Category[] => getStoredState('aecom_categories', DEFAULT_CATEGORIES);
-export const saveCategories = (categories: Category[]): void => setStoredState('aecom_categories', categories);
+export const loadCategories = (): Category[] => getStoredState('minami_categories', DEFAULT_CATEGORIES);
+export const saveCategories = (categories: Category[]): void => setStoredState('minami_categories', categories);
 
-export const loadArticles = (): Article[] => getStoredState('aecom_articles', DEFAULT_ARTICLES);
-export const saveArticles = (articles: Article[]): void => setStoredState('aecom_articles', articles);
+export const loadArticles = (): Article[] => getStoredState('minami_articles', DEFAULT_ARTICLES);
+export const saveArticles = (articles: Article[]): void => setStoredState('minami_articles', articles);
+
+export const formatPrice = (price: string | number | undefined | null): string => {
+  if (!price || price === 'Liên hệ' || price === '0' || price === 0 || price === '0.00') {
+    return 'Liên hệ';
+  }
+  const cleanPrice = typeof price === 'string' ? price.replace(/[^\d]/g, '') : String(price);
+  const num = parseInt(cleanPrice, 10);
+  if (isNaN(num) || num === 0) return 'Liên hệ';
+  return new Intl.NumberFormat('vi-VN').format(num) + ' đ';
+};
+
+const isLocalBackendImage = (url: string | undefined | null) => {
+  if (!url) return false;
+  return url.includes('localhost:3000') || url.startsWith('/api/v1') || url.startsWith('/uploads') || url.startsWith('uploads');
+};
+
+export const formatArticleContent = (content: string): string => {
+  if (!content) return '';
+  let html = content;
+
+  // Bold: **text** -> <strong>text</strong>
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+  // Italic: *text* -> <em>text</em>
+  html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+  // Images: ![alt](url) -> check and prepend backend host if relative
+  html = html.replace(/!\[(.*?)\]\((.*?)\)/g, (_match, alt, url) => {
+    let finalUrl = url;
+    if (finalUrl.startsWith('/images/') || finalUrl.startsWith('images/')) {
+      // local assets
+    } else {
+      if (finalUrl.includes(`${API_BASE_URL}/uploads`)) {
+        finalUrl = finalUrl.replace(`${API_BASE_URL}/uploads`, `${API_BASE_URL}/api/v1/uploads`);
+      } else if (finalUrl.startsWith('/uploads')) {
+        finalUrl = `/api/v1${finalUrl}`;
+      } else if (finalUrl.startsWith('uploads')) {
+        finalUrl = `/api/v1/${finalUrl}`;
+      }
+      if (finalUrl && !finalUrl.startsWith('http://') && !finalUrl.startsWith('https://') && !finalUrl.startsWith('data:')) {
+        finalUrl = `${API_BASE_URL}${finalUrl.startsWith('/') ? '' : '/'}${finalUrl}`;
+      }
+    }
+    const crossOriginAttr = isLocalBackendImage(finalUrl) ? 'crossorigin="anonymous"' : '';
+    return `<img src="${finalUrl}" alt="${alt}" ${crossOriginAttr} style="max-width:100%; display:block; margin: 20px auto; border-radius:8px; border:1px solid var(--border-light); box-shadow: var(--shadow-sm);" />`;
+  });
+
+  // Process block lines (headers, bullet points, paragraphs)
+  html = html.split('\n').map(line => {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('- ')) {
+      return `<li>${trimmed.substring(2)}</li>`;
+    }
+    if (trimmed.startsWith('### ')) {
+      return `<h3 style="color: var(--primary-color); margin-top: 20px; margin-bottom: 10px; font-size: 16px; font-weight: 700;">${trimmed.substring(4)}</h3>`;
+    }
+    return line ? `<p style="margin-bottom: 15px;">${line}</p>` : '';
+  }).join('\n');
+
+  // Wrap li groups in ul tags
+  html = html.replace(/(<li>.*?<\/li>)+/gs, (match) => `<ul style="padding-left: 20px; margin-bottom: 15px; list-style-type: disc;">${match}</ul>`);
+
+  return html;
+};

@@ -1,142 +1,140 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  Inbox, 
-  AlertTriangle, 
-  Lock, 
-  Search, 
-  ChevronLeft, 
+import {
+  Inbox,
+  AlertTriangle,
+  Lock,
+  Search,
+  ChevronLeft,
   ChevronRight,
   SlidersHorizontal
 } from './icons';
 import type { Product as ProductItem } from '../utils/adminState';
+import { formatPrice } from '../utils/adminState';
 
 interface ProductTableProps {
   products: ProductItem[];
   selectedCategory: string | null;
   onSelectProduct: (product: ProductItem) => void;
+  currentPage: number;
+  totalPages: number;
+  totalProducts: number;
+  onPageChange: (page: number) => void;
+  onSearchChange: (keyword: string) => void;
+  sortBy: string;
+  order: string;
+  onSortChange: (sortBy: string, order: string) => void;
 }
 
-export const ProductTable: React.FC<ProductTableProps> = ({ 
-  products, 
-  selectedCategory, 
-  onSelectProduct 
+const isLocalBackendImage = (url: string | undefined | null) => {
+  if (!url) return false;
+  return url.includes('localhost:3000') || url.startsWith('/api/v1') || url.startsWith('/uploads') || url.startsWith('uploads');
+};
+
+export const ProductTable: React.FC<ProductTableProps> = ({
+  products,
+  selectedCategory: _selectedCategory,
+  onSelectProduct,
+  currentPage,
+  totalPages,
+  totalProducts,
+  onPageChange,
+  onSearchChange,
+  sortBy,
+  order,
+  onSortChange
 }) => {
   const [tableState, setTableState] = useState<'normal' | 'loading' | 'error' | 'no-permission' | 'empty'>('normal');
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortField, setSortField] = useState<keyof ProductItem | null>(null);
-  const [sortAsc, setSortAsc] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 15; // 3 rows * 5 columns
 
-  // Search & Filter
-  const filteredProducts = useMemo(() => {
-    if (tableState !== 'normal') return [];
-    let items = products;
-    if (selectedCategory) {
-      items = items.filter(p => p.category.toLowerCase() === selectedCategory.toLowerCase());
+  // Debounce search term changes to prevent spamming queries
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      onSearchChange(searchTerm);
+    }, 450); // 450ms delay
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm, onSearchChange]);
+
+  // Map sortBy and order to sortOption string
+  const sortOption = useMemo(() => {
+    if (sortBy === 'created_at') return order === 'DESC' ? 'created_desc' : 'created_asc';
+    if (sortBy === 'name') return order === 'DESC' ? 'name_desc' : 'name_asc';
+    if (sortBy === 'price') return order === 'DESC' ? 'price_desc' : 'price_asc';
+    if (sortBy === 'stock') return order === 'DESC' ? 'stock_desc' : 'stock_asc';
+    return 'created_desc';
+  }, [sortBy, order]);
+
+  const handleSortChange = (option: string) => {
+    let newSortBy = 'created_at';
+    let newOrder = 'DESC';
+    switch (option) {
+      case 'name_asc': newSortBy = 'name'; newOrder = 'ASC'; break;
+      case 'name_desc': newSortBy = 'name'; newOrder = 'DESC'; break;
+      case 'price_asc': newSortBy = 'price'; newOrder = 'ASC'; break;
+      case 'price_desc': newSortBy = 'price'; newOrder = 'DESC'; break;
+      case 'stock_asc': newSortBy = 'stock'; newOrder = 'ASC'; break;
+      case 'stock_desc': newSortBy = 'stock'; newOrder = 'DESC'; break;
+      case 'created_asc': newSortBy = 'created_at'; newOrder = 'ASC'; break;
+      case 'created_desc': newSortBy = 'created_at'; newOrder = 'DESC'; break;
     }
-    return items.filter(product => 
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [searchTerm, tableState, products, selectedCategory]);
-
-  // Sort
-  const sortedProducts = useMemo(() => {
-    const data = [...filteredProducts];
-    if (!sortField) return data;
-    return data.sort((a, b) => {
-      let aVal = a[sortField];
-      let bVal = b[sortField];
-      if (typeof aVal === 'string') {
-        return sortAsc 
-          ? aVal.localeCompare(bVal as string) 
-          : (bVal as string).localeCompare(aVal);
-      } else {
-        return sortAsc 
-          ? (aVal as number) - (bVal as number) 
-          : (bVal as number) - (aVal as number);
-      }
-    });
-  }, [filteredProducts, sortField, sortAsc]);
-
-  // Pagination
-  const totalPages = Math.ceil(sortedProducts.length / itemsPerPage) || 1;
-  const paginatedProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return sortedProducts.slice(startIndex, startIndex + itemsPerPage);
-  }, [sortedProducts, currentPage]);
-
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    if (!value) {
-      setSortField(null);
-    } else {
-      setSortField(value as keyof ProductItem);
-      setSortAsc(true);
-    }
-    setCurrentPage(1);
+    onSortChange(newSortBy, newOrder);
   };
+
+  const sortedProducts = products;
 
   return (
     <div className="product-table-section">
       <div className="table-controls">
         <h3 className="section-title">
-          {selectedCategory ? `Danh Mục: ${selectedCategory}` : 'Danh Sách Thiết Bị Cung Cấp'}
+          Danh Sách Thiết Bị Cung Cấp
         </h3>
-        
-        {/* State selectors for testing */}
-        <div className="state-selectors">
-          <button className={`btn-state ${tableState === 'normal' ? 'active' : ''}`} onClick={() => setTableState('normal')}>Dữ liệu thật</button>
-          <button className={`btn-state ${tableState === 'loading' ? 'active' : ''}`} onClick={() => setTableState('loading')}>Đang tải</button>
-          <button className={`btn-state ${tableState === 'error' ? 'active' : ''}`} onClick={() => setTableState('error')}>Lỗi</button>
-          <button className={`btn-state ${tableState === 'no-permission' ? 'active' : ''}`} onClick={() => setTableState('no-permission')}>Quyền hạn</button>
-          <button className={`btn-state ${tableState === 'empty' ? 'active' : ''}`} onClick={() => setTableState('empty')}>Trống</button>
-        </div>
-      </div>
+        <div className="table-actions">
+          <div className="search-bar-container">
+            <Search size={16} className="search-icon" />
+            <input
+              type="text"
+              placeholder="Tìm theo mã hoặc tên thiết bị..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+              }}
+              className="search-input"
+              disabled={tableState !== 'normal'}
+            />
+          </div>
 
-      <div className="filter-sort-bar">
-        <div className="search-bar-container">
-          <Search size={18} className="search-icon" />
-          <input 
-            type="text" 
-            placeholder="Tìm kiếm mã thiết bị hoặc tên sản phẩm..." 
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="search-input"
-            disabled={tableState !== 'normal'}
-          />
-        </div>
-
-        <div className="sort-container">
-          <SlidersHorizontal size={16} className="sort-icon" />
-          <select onChange={handleSortChange} className="sort-select" disabled={tableState !== 'normal'}>
-            <option value="">Sắp xếp mặc định</option>
-            <option value="code">Mã thiết bị</option>
-            <option value="name">Tên sản phẩm</option>
-            <option value="price">Giá tiền</option>
-            <option value="stock">Số lượng tồn</option>
-          </select>
+          <div className="sort-container">
+            <SlidersHorizontal size={16} className="sort-icon" />
+            <select value={sortOption} onChange={(e) => handleSortChange(e.target.value)} className="sort-select" disabled={tableState !== 'normal'}>
+              <option value="created_desc">Sắp xếp mặc định (Ngày tạo mới nhất)</option>
+              <option value="name_asc">Tên sản phẩm (A → Z)</option>
+              <option value="name_desc">Tên sản phẩm (Z → A)</option>
+              <option value="price_asc">Giá tiền (Thấp → Cao)</option>
+              <option value="price_desc">Giá tiền (Cao → Thấp)</option>
+              <option value="stock_asc">Số lượng tồn (Ít → Nhiều)</option>
+              <option value="stock_desc">Số lượng tồn (Nhiều → Ít)</option>
+              <option value="created_asc">Ngày tạo (Cũ nhất)</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* RENDER SUCCESS STATE */}
-      {tableState === 'normal' && paginatedProducts.length > 0 && (
+      {tableState === 'normal' && sortedProducts.length > 0 && (
         <div className="products-grid-catalog">
-          {paginatedProducts.map(product => (
-            <div 
-              key={product.id} 
+          {sortedProducts.map(product => (
+            <div
+              key={product.id}
               className="product-card"
               onClick={() => onSelectProduct(product)}
             >
               <div className="product-card-img-container">
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  crossOrigin={isLocalBackendImage(product.image) ? "anonymous" : undefined}
                   className="product-card-img"
                   onError={(e) => {
                     (e.target as HTMLElement).style.display = 'none';
@@ -148,7 +146,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                 <span className="product-card-code">{product.code}</span>
                 <h4 className="product-card-name">{product.name}</h4>
                 <div className="product-card-bottom">
-                  <span className="product-card-price">{product.price}</span>
+                  <span className="product-card-price">{formatPrice(product.price)}</span>
                   <button className="btn btn-outline btn-xs-card">
                     Chi tiết
                   </button>
@@ -182,7 +180,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       )}
 
       {/* RENDER EMPTY STATE */}
-      {(tableState === 'empty' || (tableState === 'normal' && paginatedProducts.length === 0)) && (
+      {(tableState === 'empty' || (tableState === 'normal' && sortedProducts.length === 0)) && (
         <div className="table-empty-state empty">
           <Inbox size={48} className="state-icon empty-icon" />
           <h4>Không tìm thấy thiết bị nào</h4>
@@ -212,19 +210,19 @@ export const ProductTable: React.FC<ProductTableProps> = ({
       {tableState === 'normal' && (
         <div className="table-pagination">
           <span className="pagination-info">
-            Trang <strong>{currentPage}</strong> trên <strong>{totalPages}</strong> ({filteredProducts.length} sản phẩm)
+            Trang <strong>{currentPage}</strong> trên <strong>{totalPages}</strong> ({totalProducts} sản phẩm)
           </span>
           <div className="pagination-buttons">
-            <button 
-              className="btn btn-outline btn-pagination" 
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            <button
+              className="btn btn-outline btn-pagination"
+              onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
               disabled={currentPage === 1}
             >
               <ChevronLeft size={16} /> Trước
             </button>
-            <button 
-              className="btn btn-outline btn-pagination" 
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            <button
+              className="btn btn-outline btn-pagination"
+              onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
               disabled={currentPage === totalPages}
             >
               Sau <ChevronRight size={16} />
@@ -245,21 +243,31 @@ export const ProductTable: React.FC<ProductTableProps> = ({
         .table-controls {
           display: flex;
           flex-direction: column;
-          gap: var(--space-3);
-          margin-bottom: var(--space-5);
-        }
-
-        @media (min-width: 768px) {
-          .table-controls {
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-          }
+          gap: var(--space-4);
+          margin-bottom: var(--space-6);
         }
 
         .section-title {
           color: var(--primary-color);
           font-size: var(--font-size-md);
+          font-weight: 700;
+          white-space: nowrap;
+        }
+
+        .table-actions {
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-3);
+          width: 100%;
+        }
+
+        @media (min-width: 576px) {
+          .table-actions {
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            max-width: 100%;
+          }
         }
 
         .state-selectors {
@@ -290,22 +298,10 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           border-color: var(--primary-color);
         }
 
-        /* Filter Sort Bar */
-        .filter-sort-bar {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: var(--space-3);
-          margin-bottom: var(--space-6);
-        }
-
-        @media (min-width: 768px) {
-          .filter-sort-bar {
-            grid-template-columns: 1fr 200px;
-          }
-        }
-
         .search-bar-container {
           position: relative;
+          flex: 7;
+          width: 100%;
         }
 
         .search-icon {
@@ -324,6 +320,7 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           border: 1px solid var(--border-medium);
           outline: none;
           transition: all var(--transition-fast);
+          box-sizing: border-box;
         }
 
         .search-input:focus {
@@ -335,6 +332,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           position: relative;
           display: flex;
           align-items: center;
+          flex: 3;
+          width: 100%;
         }
 
         .sort-icon {
@@ -357,8 +356,9 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           appearance: none;
           background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
           background-repeat: no-repeat;
-          background-position: right 8px center;
+          background-position: right 12px center;
           background-size: 16px;
+          box-sizing: border-box;
         }
 
         /* Products Grid Catalog */
