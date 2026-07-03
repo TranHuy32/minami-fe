@@ -813,7 +813,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     formData.append('file', file);
 
     const token = localStorage.getItem('accessToken');
-    fetch('http://localhost:3000/api/v1/uploads/images', {
+    fetch(`${API_BASE_URL}/api/v1/uploads/images`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -857,7 +857,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     formData.append('file', file);
 
     const token = localStorage.getItem('accessToken');
-    fetch('http://localhost:3000/api/v1/uploads/images', {
+    fetch(`${API_BASE_URL}/api/v1/uploads/images`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`
