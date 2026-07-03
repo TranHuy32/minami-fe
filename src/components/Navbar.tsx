@@ -12,6 +12,7 @@ interface NavbarProps {
   onSearch: (query: string) => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  onLogoClick: () => void;
   isAdminActive: boolean;
   onToggleAdmin: () => void;
 }
@@ -20,6 +21,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSearch,
   activeTab,
   setActiveTab,
+  onLogoClick,
   isAdminActive,
   onToggleAdmin
 }) => {
@@ -45,6 +47,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const selectTab = (tabId: string) => {
     setActiveTab(tabId);
+    setMobileMenuOpen(false);
+  };
+
+  const handleLogoClick = () => {
+    onLogoClick();
     setMobileMenuOpen(false);
   };
 
@@ -90,7 +97,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Main navigation container */}
       <div className="main-nav-container">
         <div className="main-nav-content">
-          <div className="logo-section" onClick={() => selectTab('home')}>
+          <div className="logo-section" onClick={handleLogoClick}>
             <img
               src="/images/2.png"
               alt="MINAMI Logo"
@@ -152,6 +159,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               src="/images/2.png"
               alt="MINAMI Logo"
               className="logo-img-mobile"
+              onClick={handleLogoClick}
             />
             <button className="drawer-close" onClick={() => setMobileMenuOpen(false)}>
               <X size={24} />

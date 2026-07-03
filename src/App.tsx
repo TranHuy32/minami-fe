@@ -70,6 +70,7 @@ function App() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [sortBy, setSortBy] = useState('created_at');
   const [order, setOrder] = useState('DESC');
+  const [apiReloadKey, setApiReloadKey] = useState(0);
 
   // Force page to scroll to top on mount (reload/F5)
   useEffect(() => {
@@ -160,7 +161,7 @@ function App() {
       .catch(err => {
         console.error('Error fetching products:', err);
       });
-  }, [selectedCategory, searchKeyword, currentPage, categories, sortBy, order]);
+  }, [selectedCategory, searchKeyword, currentPage, categories, sortBy, order, apiReloadKey]);
 
   // Fetch categories from Backend API on mount
   useEffect(() => {
@@ -180,7 +181,7 @@ function App() {
       .catch(err => {
         console.error('Failed to fetch categories:', err);
       });
-  }, []);
+  }, [apiReloadKey]);
 
   // Fetch articles from Backend API
   useEffect(() => {
@@ -208,7 +209,7 @@ function App() {
       .catch(err => {
         console.error('Failed to fetch articles:', err);
       });
-  }, [newsPage]);
+  }, [newsPage, apiReloadKey]);
 
   // Fetch featured products from Backend API
   useEffect(() => {
@@ -273,6 +274,18 @@ function App() {
     setActiveTab('products');
   };
 
+  const handleLogoClick = () => {
+    setActiveTab('home');
+    setSelectedCategory(null);
+    setSelectedProduct(null);
+    setSelectedArticle(null);
+    setSearchKeyword('');
+    setCurrentPage(1);
+    setNewsPage(1);
+    setIsAdminMode(false);
+    setApiReloadKey(key => key + 1);
+  };
+
   const openQuoteRequest = () => {
     setSelectedProduct(null); // Close modal first
     setActiveTab('contact');
@@ -298,6 +311,7 @@ function App() {
       <Navbar
         onSearch={handleSearch}
         activeTab={activeTab}
+        onLogoClick={handleLogoClick}
         setActiveTab={(tab) => {
           setActiveTab(tab);
           if (tab === 'home') {

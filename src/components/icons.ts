@@ -23,7 +23,8 @@ import {
   MapPin,
   ExternalLink,
   ChevronUp,
-  Globe
+  Globe,
+  Star
 } from 'lucide-react';
 
 export {
@@ -51,5 +52,6 @@ export {
   UserCheck,
   MapPin,
   ExternalLink,
-  Globe
+  Globe,
+  Star
 };

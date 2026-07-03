@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { Product, Category, Article } from '../utils/adminState';
 import { API_BASE_URL } from '../config';
 import { formatPrice, formatArticleContent } from '../utils/adminState';
-import { CheckCircle, FileText, AlertTriangle, Search, Info } from './icons';
+import { CheckCircle, FileText, AlertTriangle, Search, Info, Star } from './icons';
 import { Modal } from './Modal';
 
 const isLocalBackendImage = (url: string | undefined | null) => {
@@ -400,7 +400,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       price: pPrice,
       stock: pStock,
       status: stockStatus,
-      is_featured: editingProduct ? (editingProduct.is_featured || false) : false,
       image_url: finalImage,
       specifications: specificationsObj,
       description: pDescription.trim()
@@ -450,6 +449,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           triggerErrorFeedback('Lỗi kết nối.');
         });
     }
+  };
+
+  const handleToggleFeatured = (product: Product) => {
+    const nextFeatured = !product.is_featured;
+    fetch(`${API_BASE_URL}/api/v1/products/${product.id}/featured`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ is_featured: nextFeatured })
+    })
+      .then(async (res) => {
+        if (res.ok) {
+          triggerFeedback(nextFeatured ? 'Đã đánh dấu nổi bật.' : 'Đã bỏ nổi bật.');
+          fetchAdminProducts();
+        } else {
+          handleApiError(res, 'Không thể cập nhật nổi bật.');
+        }
+      })
+      .catch(err => {
+        console.error('Error toggling featured product:', err);
+        triggerErrorFeedback('Lỗi kết nối.');
+      });
   };
 
   // --- Category CRUD ---
@@ -1462,6 +1482,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <th>Danh mục</th>
                       <th>Giá</th>
                       <th>Tồn</th>
+                      <th>Nổi bật</th>
                       <th>Hành động</th>
                     </tr>
                   </thead>
@@ -1490,6 +1511,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <td>{p.category}</td>
                         <td className="price-label">{formatPrice(p.price)}</td>
                         <td>{p.stock}</td>
+                        <td>
+                          <button
+                            type="button"
+                            onClick={() => handleToggleFeatured(p)}
+                            aria-label={p.is_featured ? 'Bỏ nổi bật' : 'Đánh dấu nổi bật'}
+                            aria-pressed={!!p.is_featured}
+                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0 }}
+                          >
+                            <Star size={18} fill={p.is_featured ? '#f59e0b' : 'none'} color={p.is_featured ? '#f59e0b' : 'var(--border-medium)'} />
+                          </button>
+                        </td>
                         <td>
                           <div className="action-buttons-cell">
                             <button className="btn-edit" onClick={() => handleOpenEditProduct(p)}>Sửa</button>
