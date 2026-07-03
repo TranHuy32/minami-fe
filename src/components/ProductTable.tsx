@@ -361,23 +361,17 @@ export const ProductTable: React.FC<ProductTableProps> = ({
           box-sizing: border-box;
         }
 
-        /* Products Grid Catalog */
         .products-grid-catalog {
           display: grid;
-          grid-template-columns: 1fr;
-          gap: var(--space-3);
+          grid-template-columns: repeat(2, 1fr);
+          gap: var(--space-2);
           margin-bottom: var(--space-6);
-        }
-
-        @media (min-width: 576px) {
-          .products-grid-catalog {
-            grid-template-columns: repeat(2, 1fr);
-          }
         }
 
         @media (min-width: 768px) {
           .products-grid-catalog {
             grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-3);
           }
         }
 
@@ -417,6 +411,19 @@ export const ProductTable: React.FC<ProductTableProps> = ({
 
         .products-grid-catalog .product-card-bottom {
           padding-top: var(--space-2);
+        }
+
+        @media (max-width: 480px) {
+          .product-card-bottom {
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: var(--space-2);
+          }
+          .product-card-bottom .btn {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+          }
         }
 
         .products-grid-catalog .product-card-price {

@@ -1237,7 +1237,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <label className="field-label" style={{ fontWeight: 600, fontSize: '14px' }}>Tên Thiết Bị *</label>
             <input type="text" value={pName} onChange={e => setPName(e.target.value)} className="form-input" style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-medium)', outline: 'none' }} required />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="form-grid-2col">
             <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left' }}>
               <label className="field-label" style={{ fontWeight: 600, fontSize: '14px' }}>Danh Mục</label>
               <select value={pCategory} onChange={e => setPCategory(e.target.value)} className="form-input" style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-medium)', outline: 'none' }}>
@@ -1416,7 +1416,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                   <button className="btn btn-primary" onClick={handleOpenAddProduct}>+ Thêm sản phẩm</button>
                 </div>
-                <div style={{ display: 'flex', gap: '12px', width: '100%' }}>
+                <div className="admin-search-row">
                   <div style={{ position: 'relative', flex: 7, width: '100%' }}>
                     <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
                     <input
@@ -1772,7 +1772,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         .form-input {
           width: 100% !important;
           padding: 10px 12px !important;
-          font-size: var(--font-size-sm) !important;
+          font-size: 16px !important;
+          font-family: inherit !important;
           border: 1px solid var(--border-medium) !important;
           border-radius: var(--radius-md) !important;
           background-color: var(--bg-secondary) !important;
@@ -1780,6 +1781,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           outline: none !important;
           transition: all var(--transition-fast) !important;
           box-sizing: border-box !important;
+        }
+
+        .crud-form .form-input,
+        .crud-form .editor-textarea {
+          font-size: 16px !important;
+          font-family: inherit !important;
         }
 
         .form-input:focus {
@@ -1867,7 +1874,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           resize: vertical;
           padding: var(--space-4) !important;
           font-family: inherit;
-          font-size: 14px;
+          font-size: 16px !important;
           line-height: 1.6;
           color: var(--text-primary);
           box-sizing: border-box;
@@ -1923,6 +1930,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           gap: var(--space-2);
           border-bottom: 2px solid var(--border-light);
           margin-bottom: var(--space-5);
+          overflow-x: auto;
+          white-space: nowrap;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none; /* Hide scrollbar for Firefox */
+        }
+
+        .admin-tabs::-webkit-scrollbar {
+          display: none; /* Hide scrollbar for Chrome, Safari and Opera */
         }
 
         .admin-tab-btn {
@@ -1938,6 +1953,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           cursor: pointer;
           outline: none;
           transition: all var(--transition-fast);
+          flex-shrink: 0;
         }
 
         .admin-tab-btn:hover {
@@ -1949,12 +1965,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           border-bottom-color: var(--primary-color);
         }
 
+        @media (max-width: 576px) {
+          .admin-tabs {
+            gap: 4px;
+          }
+          .admin-tab-btn {
+            padding: var(--space-2) var(--space-2);
+            font-size: var(--font-size-xs);
+          }
+        }
+
         .admin-dashboard-container {
           background-color: var(--bg-secondary);
           border: 1px solid var(--border-light);
           border-radius: var(--radius-lg);
           padding: var(--space-6);
           box-shadow: var(--shadow-md);
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
+          min-width: 0;
+        }
+
+        .admin-tab-content,
+        .dashboard-grid,
+        .crud-list-wrapper {
+          width: 100%;
+          max-width: 100%;
+          min-width: 0;
+          box-sizing: border-box;
         }
 
         .admin-header {
@@ -1964,6 +2003,46 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           border-bottom: 1px solid var(--border-light);
           padding-bottom: var(--space-4);
           margin-bottom: var(--space-5);
+        }
+
+        .form-grid-2col {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+
+        .admin-search-row {
+          display: flex;
+          gap: 12px;
+          width: 100%;
+          flex-direction: column;
+        }
+
+        @media (min-width: 576px) {
+          .form-grid-2col {
+            grid-template-columns: 1fr 1fr;
+          }
+          .admin-search-row {
+            flex-direction: row;
+          }
+        }
+
+        @media (max-width: 576px) {
+          .admin-dashboard-container {
+            padding: var(--space-4) var(--space-3);
+          }
+          .admin-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--space-3);
+          }
+          .admin-header > div {
+            width: 100%;
+          }
+          .btn-logout {
+            width: 100%;
+            text-align: center;
+          }
         }
 
         .admin-header h3 {

@@ -13,6 +13,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSelectCategory, selectedCate
     'SMC': true,
     'Cảm biến': false,
   });
+  const [mobileListOpen, setMobileListOpen] = useState(false);
 
   const handleRowClick = (cat: Category) => {
     const hasSubs = !!cat.children && cat.children.length > 0;
@@ -38,8 +39,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSelectCategory, selectedCate
 
   return (
     <aside className="sidebar-categories">
-      <h2 className="sidebar-title">Danh Mục Sản Phẩm</h2>
-      <ul className="category-list">
+      <h2 
+        className={`sidebar-title ${mobileListOpen ? 'expanded' : ''}`}
+        onClick={() => setMobileListOpen(!mobileListOpen)}
+        style={{ cursor: 'pointer' }}
+      >
+        <span>Danh Mục Sản Phẩm</span>
+        <span className={`sidebar-mobile-toggle-icon ${mobileListOpen ? 'rotated' : ''}`}>
+          <ChevronDown size={16} />
+        </span>
+      </h2>
+      <ul className={`category-list ${mobileListOpen ? 'mobile-open' : ''}`}>
         {categories.map(cat => {
           const hasSubs = !!cat.children && cat.children.length > 0;
           const isExpanded = !!expandedCats[cat.name];
@@ -94,6 +104,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSelectCategory, selectedCate
           border-radius: var(--radius-lg);
           padding: var(--space-4) 0;
           box-shadow: var(--shadow-sm);
+          transition: all var(--transition-normal);
         }
 
         .sidebar-title {
@@ -103,11 +114,57 @@ export const Sidebar: React.FC<SidebarProps> = ({ onSelectCategory, selectedCate
           padding: 0 var(--space-4) var(--space-3) var(--space-4);
           border-bottom: 2px solid var(--accent-color);
           margin-bottom: var(--space-3);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          user-select: none;
+        }
+
+        .sidebar-mobile-toggle-icon {
+          display: flex;
+          align-items: center;
+          transition: transform var(--transition-normal);
+          color: var(--text-muted);
+        }
+
+        @media (min-width: 992px) {
+          .sidebar-mobile-toggle-icon {
+            display: none;
+          }
         }
 
         .category-list {
-          display: flex;
+          display: none;
           flex-direction: column;
+        }
+
+        .category-list.mobile-open {
+          display: flex;
+        }
+
+        @media (min-width: 992px) {
+          .category-list {
+            display: flex;
+          }
+        }
+
+        @media (max-width: 991px) {
+          .sidebar-categories {
+            padding: var(--space-3) 0;
+          }
+          .sidebar-title {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+          }
+          .sidebar-title.expanded {
+            margin-bottom: var(--space-3);
+            padding-bottom: var(--space-3);
+            border-bottom: 2px solid var(--accent-color);
+          }
+          .sidebar-mobile-toggle-icon.rotated {
+            transform: rotate(180deg);
+          }
         }
 
         .category-item-row {

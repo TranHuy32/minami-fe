@@ -54,7 +54,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="top-bar">
         <div className="top-bar-container">
           <div className="top-bar-contacts">
-            <a href="tel:02462533810" className="top-bar-link">
+            <a href="tel:" className="top-bar-link">
               <Phone size={14} /> <span>Liên hệ:</span>
             </a>
             <span className="separator">|</span>
@@ -183,10 +183,25 @@ export const Navbar: React.FC<NavbarProps> = ({
                   </button>
                 </li>
               ))}
+              <li className="mobile-menu-item" style={{ marginTop: '12px', borderTop: '1px solid var(--border-light)', paddingTop: '12px' }}>
+                <button
+                  className="mobile-menu-link"
+                  onClick={() => {
+                    onToggleAdmin();
+                    setMobileMenuOpen(false);
+                  }}
+                  style={{
+                    color: 'var(--accent-color)',
+                    fontWeight: 700
+                  }}
+                >
+                  {isAdminActive ? 'Thoát Admin' : 'Cổng Admin'}
+                </button>
+              </li>
             </ul>
 
             <div className="mobile-drawer-contacts">
-              <p><Phone size={14} /> </p>
+              <p><Phone size={14} /> <span></span></p>
               <p><Mail size={14} /> Minamiautomation@gmail.com</p>
             </div>
           </div>
@@ -210,6 +225,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           font-size: var(--font-size-xs);
           padding: 8px 0;
           border-bottom: 1px solid var(--primary-dark);
+        }
+
+        @media (max-width: 768px) {
+          .top-bar {
+            display: none;
+          }
         }
 
         .top-bar-container {

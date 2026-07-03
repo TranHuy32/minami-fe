@@ -394,42 +394,24 @@ function App() {
                 )}
 
                 {/* Quick Contact Banner Section */}
-                <section className="quick-contact-banner" style={{
-                  background: 'linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%)',
-                  borderRadius: 'var(--radius-lg)',
-                  padding: 'var(--space-6) var(--space-8)',
-                  color: 'var(--text-white)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 'var(--space-4)',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  boxShadow: 'var(--shadow-md)',
-                  marginTop: 'var(--space-4)'
-                }}>
-                  <div style={{ textAlign: 'center' }}>
-                    <h3 style={{ fontSize: 'var(--font-size-lg)', fontWeight: 700, marginBottom: '6px' }}>
+                <section className="quick-contact-banner">
+                  <div className="quick-contact-text">
+                    <h3>
                       Bạn Cần Tìm Thiết Bị Khác Hoặc Yêu Cầu Báo Giá Nhanh?
                     </h3>
-                    <p style={{ fontSize: 'var(--font-size-sm)', opacity: 0.9 }}>
+                    <p>
                       Đội ngũ kỹ sư của MINAMI luôn sẵn sàng tư vấn cấu hình sản phẩm phù hợp nhất với nhu cầu của bạn.
                     </p>
                   </div>
-                  <div style={{ display: 'flex', gap: 'var(--space-4)', flexWrap: 'wrap', justifyContent: 'center' }}>
-                    <a href="tel:" className="btn btn-secondary" style={{ minWidth: '160px' }}>
+                  <div className="quick-contact-actions">
+                    <a href="tel:" className="btn btn-secondary quick-contact-btn">
                       <Phone size={16} /> Gọi
                     </a>
                     <button
-                      className="btn"
+                      className="btn quick-contact-btn btn-outline-white"
                       onClick={() => {
                         setActiveTab('contact');
                         window.scrollTo({ top: 0, behavior: 'smooth' });
-                      }}
-                      style={{
-                        backgroundColor: 'rgba(255,255,255,0.15)',
-                        color: 'var(--text-white)',
-                        border: '1px solid rgba(255,255,255,0.3)',
-                        minWidth: '160px'
                       }}
                     >
                       <Mail size={16} /> Gửi Yêu Cầu Ngay
@@ -840,19 +822,14 @@ function App() {
         /* Products Grid */
         .products-grid {
           display: grid;
-          grid-template-columns: 1fr;
-          gap: var(--space-4);
+          grid-template-columns: repeat(2, 1fr);
+          gap: var(--space-2);
         }
 
-        @media (min-width: 576px) {
-          .products-grid {
-            grid-template-columns: repeat(2, 1fr);
-          }
-        }
-
-        @media (min-width: 992px) {
+        @media (min-width: 768px) {
           .products-grid {
             grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-4);
           }
         }
 
@@ -877,12 +854,19 @@ function App() {
         .product-card-img-container {
           position: relative;
           background-color: var(--bg-primary);
-          height: 220px;
+          height: 140px;
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: var(--space-4);
+          padding: var(--space-2);
           border-bottom: 1px solid var(--border-light);
+        }
+
+        @media (min-width: 768px) {
+          .product-card-img-container {
+            height: 220px;
+            padding: var(--space-4);
+          }
         }
 
         .product-card-img {
@@ -936,6 +920,19 @@ function App() {
           margin-top: auto;
           padding-top: var(--space-3);
           border-top: 1px solid var(--border-light);
+        }
+
+        @media (max-width: 480px) {
+          .product-card-bottom {
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: var(--space-2);
+          }
+          .product-card-bottom .btn {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+          }
         }
 
         .product-card-price {
@@ -1032,6 +1029,76 @@ function App() {
 
         .job-card h4 {
           color: var(--primary-color);
+        }
+
+        /* Quick Contact Banner */
+        .quick-contact-banner {
+          background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+          border-radius: var(--radius-lg);
+          padding: var(--space-6) var(--space-8);
+          color: var(--text-white);
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-4);
+          align-items: center;
+          justify-content: space-between;
+          box-shadow: var(--shadow-md);
+          margin-top: var(--space-4);
+          text-align: center;
+          box-sizing: border-box;
+          width: 100%;
+        }
+
+        .quick-contact-text h3 {
+          font-size: var(--font-size-lg);
+          font-weight: 700;
+          margin-bottom: 6px;
+          color: var(--text-white);
+        }
+
+        .quick-contact-text p {
+          font-size: var(--font-size-sm);
+          opacity: 0.9;
+        }
+
+        .quick-contact-actions {
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-3);
+          width: 100%;
+          justify-content: center;
+        }
+
+        .quick-contact-btn {
+          width: 100%;
+          text-align: center;
+          justify-content: center;
+        }
+
+        .btn-outline-white {
+          background-color: rgba(255, 255, 255, 0.15);
+          color: var(--text-white);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-outline-white:hover {
+          background-color: rgba(255, 255, 255, 0.25);
+        }
+
+        @media (min-width: 576px) {
+          .quick-contact-actions {
+            flex-direction: row;
+          }
+          .quick-contact-btn {
+            width: auto;
+            min-width: 160px;
+          }
+        }
+
+        @media (max-width: 576px) {
+          .quick-contact-banner {
+            padding: var(--space-5) var(--space-4);
+          }
         }
 
         /* Footer styling */
@@ -1143,6 +1210,12 @@ function App() {
           flex-shrink: 0;
         }
 
+        @media (max-width: 575px) {
+          .modal-prod-img-box {
+            margin: 0 auto;
+          }
+        }
+
         .modal-prod-img-box img {
           max-height: 100%;
           object-fit: contain;
@@ -1153,6 +1226,13 @@ function App() {
           flex-direction: column;
           gap: var(--space-1);
           align-items: flex-start;
+        }
+
+        @media (max-width: 575px) {
+          .modal-prod-meta {
+            align-items: center;
+            text-align: center;
+          }
         }
 
         .prod-badge {

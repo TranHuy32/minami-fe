@@ -158,8 +158,14 @@ export const Slider: React.FC<SliderProps> = ({ onContactClick, onProductsClick 
           position: relative;
           display: flex;
           align-items: center;
-          padding: var(--space-8);
+          padding: var(--space-4);
           box-sizing: border-box;
+        }
+
+        @media (min-width: 768px) {
+          .slide-item {
+            padding: var(--space-8);
+          }
         }
 
         .slide-overlay {
@@ -182,7 +188,7 @@ export const Slider: React.FC<SliderProps> = ({ onContactClick, onProductsClick 
           align-items: flex-start;
           gap: var(--space-3);
           animation: slideUpContent 500ms ease-out forwards;
-          margin-left: 20px;
+          margin-left: 10px;
         }
 
         @media (min-width: 768px) {
@@ -229,9 +235,17 @@ export const Slider: React.FC<SliderProps> = ({ onContactClick, onProductsClick 
 
         .slide-actions {
           display: flex;
-          gap: var(--space-3);
+          flex-direction: column;
+          gap: var(--space-2);
           margin-top: var(--space-2);
           width: 100%;
+        }
+
+        @media (min-width: 480px) {
+          .slide-actions {
+            flex-direction: row;
+            gap: var(--space-3);
+          }
         }
 
         .slide-btn-outline {
@@ -250,16 +264,22 @@ export const Slider: React.FC<SliderProps> = ({ onContactClick, onProductsClick 
           top: 50%;
           transform: translateY(-50%);
           z-index: 10;
-          width: 44px;
-          height: 44px;
+          width: 40px;
+          height: 40px;
           border-radius: var(--radius-round);
           background-color: rgba(255, 255, 255, 0.15);
           color: var(--text-white);
-          display: flex;
+          display: none;
           align-items: center;
           justify-content: center;
           backdrop-filter: blur(4px);
           transition: all var(--transition-fast);
+        }
+
+        @media (min-width: 576px) {
+          .slider-arrow {
+            display: flex;
+          }
         }
 
         .slider-arrow:hover {
