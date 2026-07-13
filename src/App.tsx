@@ -421,7 +421,7 @@ function App() {
                     </p>
                   </div>
                   <div className="quick-contact-actions">
-                    <a href="tel:" className="btn btn-secondary quick-contact-btn">
+                    <a href="tel:0389995225" className="btn btn-secondary quick-contact-btn">
                       <Phone size={16} /> Gọi
                     </a>
                     <button
@@ -637,8 +637,8 @@ function App() {
           <div className="footer-column">
             <h4>Thông Tin Liên Hệ</h4>
             <ul className="footer-contacts-list">
-              <li><MapPin size={16} /> Số nhà 25, ngách 159/1, đường Hữu Hưng, phường Tây Mỗ, thành phố Hà Nội</li>
-              <li><Phone size={16} /></li>
+              <li><MapPin size={16} /> Số nhà 10, ngõ 199/3/1 đường Liên Mạc, TDP Đại Cát 3, Phường Thượng Cát, TP Hà Nội, Việt Nam</li>
+              <li><Phone size={16} /> <a href="tel:0389995225">038.999.5225</a></li>
               <li><Mail size={16} /> Minamiautomation@gmail.com</li>
             </ul>
           </div>

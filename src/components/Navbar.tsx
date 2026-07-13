@@ -61,12 +61,12 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="top-bar">
         <div className="top-bar-container">
           <div className="top-bar-contacts">
-            <a href="tel:" className="top-bar-link">
-              <Phone size={14} /> <span>Liên hệ:</span>
+            <a href="tel:0389995225" className="top-bar-link">
+              <Phone size={14} /> <span>Liên hệ: 038.999.5225</span>
             </a>
             <span className="separator">|</span>
-            <a href="tel:" className="top-bar-link">
-              <Phone size={14} /> <span>Hotline:</span>
+            <a href="tel:0389995225" className="top-bar-link">
+              <Phone size={14} /> <span>Hotline: 038.999.5225</span>
             </a>
             <span className="separator">|</span>
             <a href="mailto:Minamiautomation@gmail.com" className="top-bar-link">
@@ -209,7 +209,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </ul>
 
             <div className="mobile-drawer-contacts">
-              <p><Phone size={14} /> <span></span></p>
+              <p><Phone size={14} /> <span>038.999.5225</span></p>
               <p><Mail size={14} /> Minamiautomation@gmail.com</p>
             </div>
           </div>
